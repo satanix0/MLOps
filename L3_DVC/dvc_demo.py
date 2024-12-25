@@ -9,7 +9,15 @@ data = {
 df = pd.DataFrame(data)
 
 # Adding new row to df for V2 of data
+<<<<<<< HEAD
 new_row_loc = {'Name': 'Dennis', 'Age': 20, 'City': 'Cityl'}
+=======
+<<<<<<< HEAD
+new_row_loc = {'Name': 'V2', 'Age': 20, 'City': 'Cityl'}
+=======
+new_row_loc = {'Name': 'Dennis', 'Age': 20, 'City': 'Cityl'}
+>>>>>>> aaed43a52246dfb25e78875443b75f5c66458448
+>>>>>>> 2d4e62b093111ef7b9370db0b9b67c9110476ac0
 df.loc[len(df.index)] = new_row_loc
 
 # Adding new row to df for V3 of data
