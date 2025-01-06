@@ -31,6 +31,24 @@ logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
 
+def load_params(params_path: str) -> dict:
+    """Loads hyperparameter values from a YAML file."""
+    try:
+        with open(params_path, 'r') as file:
+            params = yaml.safe_load(file)
+        logger.debug('Parameters retrieved from %s', params_path)
+        return params
+    except FileNotFoundError:
+        logger.error('File not found: %s', params_path)
+        raise
+    except yaml.YAMLError as e:
+        logger.error('YAML error: %s', e)
+        raise
+    except Exception as e:
+        logger.error('Unexpected error: %s', e)
+        raise
+
+
 def load_data(data_url: str) -> pd.DataFrame:
     """
     Load data from a CSV file.
@@ -103,7 +121,13 @@ def main():
     Main function to execute the data ingestion process.
     """
     try:
-        test_size = 0.2
+        # test_size = 0.2
+        
+        # loads the hyperparameter values
+        params = load_params(params_path='params.yaml')
+        # acceessing test size value
+        test_size = params['data_ingestion']['test_size']
+
         data_url = 'https://raw.githubusercontent.com/vikashishere/Datasets/main/spam.csv'
         df = load_data(data_url=data_url)
         final_df = preprocess_data(df)

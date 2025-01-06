@@ -1,0 +1,15 @@
+data_ingestion:
+  # Proportion of the dataset to include in the test split
+  test_size: 0.15
+
+feature_engineering:
+  # Maximum number of features to be used in the model
+  max_features: 45
+
+model_training:
+  # Number of trees in the forest for the RandomForest model
+  n_estimators: 20
+  # Seed used by the random number generator
+  random_state: 2
+  
+  

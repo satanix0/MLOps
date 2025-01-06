@@ -108,7 +108,7 @@ def evaluate_model(clf, X_test: np.ndarray, y_test: np.ndarray) -> dict:
             'recall': recall,
             'auc': auc
         }
-        logger.info('Evaluation Metrcs Claculated')
+        logger.info('Evaluation Metrics Calculated')
         return metrics_dict
 
     except Exception as e:
