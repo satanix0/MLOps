@@ -6,7 +6,8 @@ import json
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
 import logging
 import yaml
-# from dvclive import Live
+from dvclive import Live
+
 
 # Ensure the "logs" directory exists
 log_dir = 'logs'
@@ -34,30 +35,29 @@ logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
 
-def load_param(params_path: str) -> dict:
+def load_params(params_path: str) -> dict:
     """
-    Load parameters from a YAML file
+        Load parameters from a YAML file
 
-    Args:
-    params_path: str: Path to the YAML file
+        Args:
+        params_path: str: Path to the YAML file
 
-    Returns:
-    dict: Parameters
+        Returns:
+        dict: Parameters
     """
     try:
         with open(params_path, 'r') as file:
             params = yaml.safe_load(file)
-
         logger.debug('Parameters retrieved from %s', params_path)
         return params
     except FileNotFoundError:
         logger.error('File not found: %s', params_path)
         raise
     except yaml.YAMLError as e:
-        logger.error('YAMLError: %s', e)
+        logger.error('YAML error: %s', e)
         raise
     except Exception as e:
-        logger.error('Unexpected Error: %s', e)
+        logger.error('Unexpected error: %s', e)
         raise
 
 
@@ -70,6 +70,7 @@ def load_model(file_path: str):
 
         logger.debug('Model loaded from %s', file_path)
         return model
+
     except FileNotFoundError:
         logger.debug('Model not found at: %s', file_path)
         raise
@@ -84,6 +85,7 @@ def load_data(file_path: str) -> pd.DataFrame:
         df = pd.read_csv(file_path)
         logger.debug('Data loaded from %s', file_path)
         return df
+
     except pd.errors.ParserError as e:
         logger.error('Failed to parse the CSV file: %s', e)
         raise
@@ -126,6 +128,7 @@ def save_metrics(metrics: dict, json_file_path: str) -> None:
         with open(json_file_path, 'w') as file:
             json.dump(metrics, file, indent=4)
         logger.info('Metrics saved to %s', json_file_path)
+
     except Exception as e:
         logger.error('Failed to save metrics: %s', e)
 
@@ -139,7 +142,21 @@ def main():
         y_test = test_data.iloc[:, -1].values
 
         metrics = evaluate_model(clf, X_test, y_test)
+        # Saving metrics of current run(experiment) to a JSON file
         save_metrics(metrics, json_file_path='reports/metrics.json')
+
+        params = load_params(params_path='params.yaml')
+
+        # Tracking metrics and parameters with 'dvclive'
+        with Live(save_dvc_exp=True) as live:
+            # Logging metrics
+            live.log_metric('accuracy', accuracy_score(y_test, y_test))
+            live.log_metric('precision', precision_score(y_test, y_test))
+            live.log_metric('recall', recall_score(y_test, y_test))
+            live.log_metric('roc_auc', roc_auc_score(y_test, y_test))
+
+            # Logging parameters responsible for the current metrics
+            live.log_params(params)
 
     except Exception as e:
         logger.error('Failed to complete the model evaluation process: %s', e)
